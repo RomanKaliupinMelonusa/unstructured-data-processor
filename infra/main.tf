@@ -21,6 +21,12 @@ resource "google_project_service" "enabled_apis" {
   disable_on_destroy = false
 }
 
+# Sleep to allow API enablement to propagate
+resource "time_sleep" "wait_for_apis" {
+  depends_on = [google_project_service.enabled_apis]
+  create_duration = "60s"
+}
+
 # ==========================================
 # 2. Storage Buckets
 # ==========================================
@@ -106,6 +112,11 @@ resource "google_document_ai_processor" "form_parser" {
   location     = "us" # DocAI usually requires multi-region 'us' or 'eu'
   display_name = "finance-form-parser"
   type         = "FORM_PARSER_PROCESSOR"
+
+  depends_on = [
+    time_sleep.wait_for_apis,
+    google_project_service.enabled_apis
+  ]
 }
 
 # ==========================================
@@ -176,6 +187,11 @@ resource "google_cloudfunctions2_function" "dispatcher" {
   location    = var.region
   description = "Triggers Batch DocAI Job"
 
+  depends_on = [
+    time_sleep.wait_for_apis,
+    google_project_service.enabled_apis
+  ]
+
   build_config {
     runtime     = "python310"
     entry_point = "submit_batch_job"
@@ -217,6 +233,11 @@ resource "google_cloudfunctions2_function" "loader" {
   name        = "bq-loader"
   location    = var.region
   description = "Loads JSON to BigQuery"
+
+  depends_on = [
+    time_sleep.wait_for_apis,
+    google_project_service.enabled_apis
+  ]
 
   build_config {
     runtime     = "python310"
