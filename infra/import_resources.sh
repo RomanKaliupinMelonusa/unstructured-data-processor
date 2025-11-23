@@ -28,6 +28,20 @@ terraform import -var="project_id=$PROJECT_ID" -var="region=us-central1" google_
 echo "Importing BigQuery Dataset..."
 terraform import -var="project_id=$PROJECT_ID" -var="region=us-central1" google_bigquery_dataset.data_lake projects/$PROJECT_ID/datasets/data_lake
 
+echo "Importing BigQuery Table..."
+terraform import -var="project_id=$PROJECT_ID" -var="region=us-central1" google_bigquery_table.finance_docs projects/$PROJECT_ID/datasets/data_lake/tables/finance_docs
+
+echo "Importing Document AI Processor..."
+# Fetch the processor name (ID) using gcloud
+PROCESSOR_NAME=$(gcloud documentai processors list --region=us --project=$PROJECT_ID --filter="displayName:finance-form-parser" --format="value(name)" 2>/dev/null)
+
+if [ -n "$PROCESSOR_NAME" ]; then
+    echo "Found processor: $PROCESSOR_NAME"
+    terraform import -var="project_id=$PROJECT_ID" -var="region=us-central1" google_document_ai_processor.form_parser "$PROCESSOR_NAME"
+else
+    echo "Warning: Could not find Document AI processor 'finance-form-parser'. Skipping import."
+fi
+
 echo "Importing Service Account..."
 terraform import -var="project_id=$PROJECT_ID" -var="region=us-central1" google_service_account.pipeline_sa projects/$PROJECT_ID/serviceAccounts/docai-pipeline-sa@$PROJECT_ID.iam.gserviceaccount.com
 
