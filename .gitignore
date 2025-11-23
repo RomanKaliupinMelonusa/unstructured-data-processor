@@ -51,4 +51,4 @@ build/
 .env.local
 
 # Backend configuration (create from .example)
-infra/backend.tf
+# infra/backend.tf
