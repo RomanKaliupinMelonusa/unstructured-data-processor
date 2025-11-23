@@ -48,6 +48,7 @@ resource "google_storage_bucket" "functions_bucket" {
   name          = "${var.project_id}-gcf-source"
   location      = var.region
   uniform_bucket_level_access = true
+  force_destroy = true
 }
 
 # ==========================================
