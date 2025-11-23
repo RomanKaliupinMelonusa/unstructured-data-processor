@@ -1,0 +1,57 @@
+steps:
+  # Step 1: Terraform Init
+  - name: 'hashicorp/terraform:1.6'
+    id: 'terraform-init'
+    dir: 'infra'
+    args:
+      - 'init'
+    env:
+      - 'TF_IN_AUTOMATION=true'
+
+  # Step 2: Terraform Validate
+  - name: 'hashicorp/terraform:1.6'
+    id: 'terraform-validate'
+    dir: 'infra'
+    args:
+      - 'validate'
+    waitFor: ['terraform-init']
+
+  # Step 3: Terraform Plan
+  - name: 'hashicorp/terraform:1.6'
+    id: 'terraform-plan'
+    dir: 'infra'
+    args:
+      - 'plan'
+      - '-var=project_id=${PROJECT_ID}'
+      - '-var=region=${_REGION}'
+      - '-out=tfplan'
+    env:
+      - 'TF_IN_AUTOMATION=true'
+    waitFor: ['terraform-validate']
+
+  # Step 4: Terraform Apply
+  - name: 'hashicorp/terraform:1.6'
+    id: 'terraform-apply'
+    dir: 'infra'
+    args:
+      - 'apply'
+      - '-auto-approve'
+      - 'tfplan'
+    env:
+      - 'TF_IN_AUTOMATION=true'
+    waitFor: ['terraform-plan']
+
+# Substitution variables
+substitutions:
+  _REGION: 'us-central1'
+
+# Options
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'N1_HIGHCPU_8'
+
+# Timeout
+timeout: '1800s'  # 30 minutes
+
+# Service account with necessary permissions
+serviceAccount: 'projects/${PROJECT_ID}/serviceAccounts/cloudbuild-terraform@${PROJECT_ID}.iam.gserviceaccount.com'

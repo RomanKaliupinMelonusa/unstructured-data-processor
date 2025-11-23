@@ -1,0 +1,9 @@
+# Terraform State Backend Configuration
+# This file should be created after setting up GCS backend for state management
+
+terraform {
+  backend "gcs" {
+    bucket = "REPLACE_WITH_YOUR_PROJECT_ID-terraform-state"
+    prefix = "unstructured-data-processor/state"
+  }
+}
