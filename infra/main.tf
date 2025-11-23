@@ -152,6 +152,15 @@ resource "google_project_iam_member" "gcs_pubsub_publisher" {
   member  = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
 }
 
+# Grant the Eventarc Service Agent permission to manage Eventarc resources
+data "google_project" "project" {}
+
+resource "google_project_iam_member" "eventarc_service_agent" {
+  project = var.project_id
+  role    = "roles/eventarc.serviceAgent"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
+}
+
 # ==========================================
 # 6. Cloud Functions (Gen 2)
 # ==========================================
