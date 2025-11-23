@@ -147,13 +147,13 @@ resource "google_project_iam_member" "gcs_pubsub_publisher" {
 # --- Zipping Source Code ---
 data "archive_file" "dispatcher_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/src/dispatcher"
+  source_dir  = "${path.module}/../src/dispatcher"
   output_path = "${path.module}/files/dispatcher.zip"
 }
 
 data "archive_file" "loader_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/src/loader"
+  source_dir  = "${path.module}/../src/loader"
   output_path = "${path.module}/files/loader.zip"
 }
 
